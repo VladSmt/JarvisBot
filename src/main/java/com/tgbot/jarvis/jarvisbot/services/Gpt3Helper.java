@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Gpt3Helper {
     //key for server
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
 
     public static String generateResponse(String prompt) throws UnirestException {
         HttpResponse<JsonNode> response = Unirest.post("https://api.openai.com/v1/completions")
