@@ -1,5 +1,8 @@
 package com.tgbot.jarvis.jarvisbot.bot;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.tgbot.jarvis.jarvisbot.services.Gpt3Helper;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,31 +29,46 @@ public class JarvisBot extends TelegramLongPollingBot {
     @Value("${bot.token}")
     private String token;
 
-    List<String> skills = new ArrayList<>();
+    private final Gpt3Helper gpt3Helper;
 
+
+    public JarvisBot(Gpt3Helper gpt3Helper) {
+        this.gpt3Helper = gpt3Helper;
+    }
+
+    @SneakyThrows
     public void onUpdateReceived(Update update) {
         sendMsg(update);
     }
 
-    public void sendMsg(Update update) {
+    public void sendMsg(Update update) throws UnirestException {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String textFromUser = update.getMessage().getText();
 
             Long userId = update.getMessage().getChatId();
             String userFirstName = update.getMessage().getFrom().getFirstName();
 
-//            log.info("[{}, {}] : {}", userId, userFirstName, textFromUser);
-
-            SendMessage sendMessage = SendMessage.builder()
-                    .chatId(userId.toString())
-                    .text("Hello, I've received your text: " + textFromUser)
-                    .build();
-            try {
-                this.sendApiMethod(sendMessage);
-            } catch (TelegramApiException e) {
+            if (textFromUser.equals("/start")) {
+                try {
+                    SendMessage sendMessage = SendMessage.builder()
+                            .chatId(userId.toString())
+                            .text("Хай, бро! Я Джарвіс, до твоїх послуг :)")
+                            .build();
+                    this.sendApiMethod(sendMessage);
+                } catch (TelegramApiException e) {
 //                log.error("Exception when sending message: ", e);
+                }
+            } else {
+                SendMessage sendMessage = SendMessage.builder()
+                        .chatId(userId.toString())
+                        .text(Gpt3Helper.generateResponse(textFromUser))
+                        .build();
+                try {
+                    this.sendApiMethod(sendMessage);
+                } catch (TelegramApiException e) {
+//                log.error("Exception when sending message: ", e);
+                }
             }
-        } else {
 
         }
     }
