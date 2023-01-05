@@ -14,12 +14,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class Gpt3Helper {
     //key for server
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
 
     public static String generateResponse(String prompt) throws UnirestException {
         HttpResponse<JsonNode> response = Unirest.post("https://api.openai.com/v1/completions")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + API_KEY)
+                .header("OpenAI-Organization", "org-slWC5RnPqNPBRukkCTvhFJW1")
                 .body(new JSONObject()
                         .put("model", "text-davinci-003")
                         .put("prompt", prompt)
